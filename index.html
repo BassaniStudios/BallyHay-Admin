@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BallyHay Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo">BH</span>
+      <div>
+        <strong>BallyHay Admin</strong>
+        <small>BassaniStudios · painel estático</small>
+      </div>
+    </div>
+    <nav>
+      <button type="button" class="linkbtn" id="btn-refresh-nav">Atualizar</button>
+      <button type="button" class="linkbtn" id="btn-logout">Limpar chave</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Setup / API key -->
+    <section class="card" id="setup-card">
+      <h1>Configuração</h1>
+      <p class="muted">
+        Site estático (GitHub Pages). Informe a URL do bot e a <strong>API key</strong>
+        (mesmo valor de <code>ADMIN_PANEL_PASSWORD</code> no bot).
+      </p>
+      <label>
+        URL do bot (sem barra no final)
+        <input type="url" id="api-url" placeholder="https://ballyhay.onrender.com" />
+      </label>
+      <label>
+        API key
+        <input type="password" id="api-key" placeholder="ADMIN_PANEL_PASSWORD" autocomplete="off" />
+      </label>
+      <button type="button" class="btn primary" id="btn-save-key">Salvar e conectar</button>
+      <p class="muted tiny">A chave fica só no seu navegador (localStorage). Não envie o link com a chave na URL.</p>
+    </section>
+
+    <div id="flash" class="flashes" hidden></div>
+
+    <div id="app" class="hidden">
+      <section class="grid">
+        <div class="card">
+          <h2>Status</h2>
+          <ul class="kv" id="status-list"></ul>
+          <h3>Systems</h3>
+          <ul class="kv" id="systems-list"></ul>
+          <div class="tags" id="cogs-tags"></div>
+        </div>
+
+        <div class="card">
+          <h2>Ações</h2>
+          <div class="actions">
+            <button type="button" class="btn" data-action="wake">Refresh / Wake</button>
+            <button type="button" class="btn" data-action="backup">Backup manual</button>
+          </div>
+          <h3>Testes</h3>
+          <div class="actions row">
+            <button type="button" class="btn" data-test="ping">test: ping</button>
+            <button type="button" class="btn" data-test="economy">test: economy</button>
+            <button type="button" class="btn" data-test="storage">test: storage</button>
+          </div>
+          <h3>Restore (.db)</h3>
+          <input type="file" id="restore-file" accept=".db,application/octet-stream" />
+          <button type="button" class="btn danger" id="btn-restore">Restore</button>
+          <p class="muted tiny">Com Turso ativo o bot pode recusar restore por arquivo.</p>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Servidores ativos</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Nome</th><th>ID</th><th>Membros</th><th></th></tr>
+            </thead>
+            <tbody id="guilds-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card hidden" id="guild-detail">
+        <button type="button" class="linkbtn" id="btn-close-guild">← Voltar</button>
+        <h2 id="guild-title">Servidor</h2>
+        <ul class="kv" id="guild-kv"></ul>
+        <h3>Staff role (ADM por cargo)</h3>
+        <p class="muted">Role ID deste servidor que poderá usar comandos staff da economy.</p>
+        <label>
+          Role ID
+          <input type="text" id="staff-role-id" placeholder="ID do cargo ou vazio para remover" />
+        </label>
+        <button type="button" class="btn primary" id="btn-save-role">Salvar staff role</button>
+        <h3>Cargos (referência)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>ID</th><th>Membros</th></tr></thead>
+            <tbody id="roles-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    Commands / API in English · UI in Portuguese · Static HTML + API key
+  </footer>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
