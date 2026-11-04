@@ -3,112 +3,417 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BallyHay Admin</title>
+  <title>BallyHay Admin · BassaniStudios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header class="top">
-    <div class="brand">
-      <span class="logo">BH</span>
-      <div>
-        <strong>BallyHay Admin</strong>
-        <small>BassaniStudios · painel estático</small>
+  <!-- SETUP -->
+  <div id="setup-screen" class="setup-screen">
+    <div class="setup-card">
+      <div class="setup-logo">
+        <span class="logo-mark">BH</span>
+        <div>
+          <h1>BallyHay Admin</h1>
+          <p>Painel estático · BassaniStudios</p>
+        </div>
       </div>
-    </div>
-    <nav>
-      <button type="button" class="linkbtn" id="btn-refresh-nav">Atualizar</button>
-      <button type="button" class="linkbtn" id="btn-logout">Limpar chave</button>
-    </nav>
-  </header>
-
-  <main class="container">
-    <!-- Setup / API key -->
-    <section class="card" id="setup-card">
-      <h1>Configuração</h1>
-      <p class="muted">
-        Site estático (GitHub Pages). Informe a URL do bot e a <strong>API key</strong>
-        (mesmo valor de <code>ADMIN_PANEL_PASSWORD</code> no bot).
+      <p class="setup-intro">
+        Conecte-se à API do bot com a mesma chave de <code>ADMIN_PANEL_PASSWORD</code>.
+        A chave fica apenas no seu navegador (localStorage).
       </p>
-      <label>
-        URL do bot (sem barra no final)
-        <input type="url" id="api-url" placeholder="https://ballyhay.onrender.com" />
+      <label class="field">
+        <span>URL do bot (sem barra no final)</span>
+        <input type="url" id="api-url" placeholder="https://ballyhay.onrender.com" autocomplete="off" />
       </label>
-      <label>
-        API key
+      <label class="field">
+        <span>API key</span>
         <input type="password" id="api-key" placeholder="ADMIN_PANEL_PASSWORD" autocomplete="off" />
       </label>
-      <button type="button" class="btn primary" id="btn-save-key">Salvar e conectar</button>
-      <p class="muted tiny">A chave fica só no seu navegador (localStorage). Não envie o link com a chave na URL.</p>
-    </section>
-
-    <div id="flash" class="flashes" hidden></div>
-
-    <div id="app" class="hidden">
-      <section class="grid">
-        <div class="card">
-          <h2>Status</h2>
-          <ul class="kv" id="status-list"></ul>
-          <h3>Systems</h3>
-          <ul class="kv" id="systems-list"></ul>
-          <div class="tags" id="cogs-tags"></div>
-        </div>
-
-        <div class="card">
-          <h2>Ações</h2>
-          <div class="actions">
-            <button type="button" class="btn" data-action="wake">Refresh / Wake</button>
-            <button type="button" class="btn" data-action="backup">Backup manual</button>
-          </div>
-          <h3>Testes</h3>
-          <div class="actions row">
-            <button type="button" class="btn" data-test="ping">test: ping</button>
-            <button type="button" class="btn" data-test="economy">test: economy</button>
-            <button type="button" class="btn" data-test="storage">test: storage</button>
-          </div>
-          <h3>Restore (.db)</h3>
-          <input type="file" id="restore-file" accept=".db,application/octet-stream" />
-          <button type="button" class="btn danger" id="btn-restore">Restore</button>
-          <p class="muted tiny">Com Turso ativo o bot pode recusar restore por arquivo.</p>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Servidores ativos</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Nome</th><th>ID</th><th>Membros</th><th></th></tr>
-            </thead>
-            <tbody id="guilds-body"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="card hidden" id="guild-detail">
-        <button type="button" class="linkbtn" id="btn-close-guild">← Voltar</button>
-        <h2 id="guild-title">Servidor</h2>
-        <ul class="kv" id="guild-kv"></ul>
-        <h3>Staff role (ADM por cargo)</h3>
-        <p class="muted">Role ID deste servidor que poderá usar comandos staff da economy.</p>
-        <label>
-          Role ID
-          <input type="text" id="staff-role-id" placeholder="ID do cargo ou vazio para remover" />
-        </label>
-        <button type="button" class="btn primary" id="btn-save-role">Salvar staff role</button>
-        <h3>Cargos (referência)</h3>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Nome</th><th>ID</th><th>Membros</th></tr></thead>
-            <tbody id="roles-body"></tbody>
-          </table>
-        </div>
-      </section>
+      <button type="button" class="btn btn-primary btn-block" id="btn-save-key">Salvar e conectar</button>
+      <p class="hint">Não compartilhe o link com a chave. Use apenas em dispositivos confiáveis.</p>
     </div>
-  </main>
+  </div>
 
-  <footer class="foot">
-    Commands / API in English · UI in Portuguese · Static HTML + API key
-  </footer>
+  <!-- APP -->
+  <div id="app-shell" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="logo-mark sm">BH</span>
+        <div>
+          <strong>BallyHay</strong>
+          <small>Admin Panel</small>
+        </div>
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <button type="button" class="nav-item active" data-view="dashboard">
+          <span class="nav-icon">☀</span> Dashboard
+        </button>
+        <button type="button" class="nav-item" data-view="servers">
+          <span class="nav-icon">🏠</span> Servidores
+        </button>
+        <button type="button" class="nav-item" data-view="actions">
+          <span class="nav-icon">⚡</span> Ações &amp; Backup
+        </button>
+        <button type="button" class="nav-item" data-view="systems">
+          <span class="nav-icon">🧩</span> Sistemas
+        </button>
+        <button type="button" class="nav-item" data-view="tests">
+          <span class="nav-icon">🔬</span> Testes
+        </button>
+        <button type="button" class="nav-item" data-view="guide">
+          <span class="nav-icon">📖</span> Guia do Bot
+        </button>
+        <button type="button" class="nav-item" data-view="settings">
+          <span class="nav-icon">⚙</span> Configuração
+        </button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="status-pill" id="conn-pill">
+          <span class="dot"></span>
+          <span id="conn-label">Conectado</span>
+        </div>
+        <button type="button" class="linkbtn" id="btn-logout">Limpar chave</button>
+      </div>
+    </aside>
+
+    <div class="main-wrap">
+      <header class="topbar">
+        <div>
+          <h2 id="view-title">Dashboard</h2>
+          <p class="muted" id="view-subtitle">Visão geral do bot e economia GTA RP</p>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" class="btn btn-ghost" id="btn-refresh-nav">Atualizar dados</button>
+        </div>
+      </header>
+
+      <div id="flash" class="flashes" hidden></div>
+
+      <main class="content">
+        <!-- DASHBOARD -->
+        <section class="view active" id="view-dashboard">
+          <div class="stats-grid" id="stats-grid">
+            <article class="stat-card">
+              <span class="stat-label">Status do bot</span>
+              <strong class="stat-value" id="stat-ready">—</strong>
+              <span class="stat-hint" id="stat-user">—</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Uptime</span>
+              <strong class="stat-value" id="stat-uptime">—</strong>
+              <span class="stat-hint">desde o último start</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Servidores</span>
+              <strong class="stat-value" id="stat-guilds">—</strong>
+              <span class="stat-hint">alvo: 5–6 guilds</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Banco / Turso</span>
+              <strong class="stat-value" id="stat-db">—</strong>
+              <span class="stat-hint" id="stat-db-hint">—</span>
+            </article>
+          </div>
+
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Sistemas ativos</h3>
+                <span class="badge soft">runtime</span>
+              </div>
+              <p class="panel-desc">Indicadores dos cogs principais carregados no processo do bot.</p>
+              <ul class="kv" id="systems-list"></ul>
+              <div class="tags" id="cogs-tags"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Resumo rápido</h3>
+              </div>
+              <p class="panel-desc">O BallyHay é um bot privado multi-servidor focado só em economia GTA Roleplay (missões, heists, cassino, lojas, XP, painéis).</p>
+              <table class="info-table">
+                <tbody id="summary-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SERVERS -->
+        <section class="view" id="view-servers">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Servidores ativos</h3>
+              <span class="badge" id="guild-count-badge">0</span>
+            </div>
+            <p class="panel-desc">
+              Lista dos servidores onde o bot está online. Clique em <strong>Gerenciar</strong> para ver economia,
+              staff role e cargos. O bot é privado e convidado manualmente (planejado para ~5–6 servidores).
+            </p>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Servidor</th>
+                    <th>ID</th>
+                    <th>Membros</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="guilds-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel hidden" id="guild-detail">
+            <div class="panel-head">
+              <button type="button" class="linkbtn" id="btn-close-guild">← Voltar à lista</button>
+              <h3 id="guild-title">Servidor</h3>
+            </div>
+            <p class="panel-desc">Detalhes de economia e permissões staff deste servidor. O staff role permite cargos usarem comandos administrativos da economy no Discord.</p>
+
+            <div class="detail-grid">
+              <div>
+                <h4>Dados do servidor</h4>
+                <ul class="kv" id="guild-kv"></ul>
+              </div>
+              <div>
+                <h4>Staff role (ADM por cargo)</h4>
+                <p class="muted tiny">Role ID que poderá usar comandos staff da economy neste servidor. Deixe vazio para remover.</p>
+                <label class="field">
+                  <span>Role ID</span>
+                  <input type="text" id="staff-role-id" placeholder="ID do cargo Discord" />
+                </label>
+                <button type="button" class="btn btn-primary" id="btn-save-role">Salvar staff role</button>
+              </div>
+            </div>
+
+            <h4 class="mt">Cargos do servidor (referência)</h4>
+            <p class="muted tiny">Use os IDs abaixo para configurar staff role ou canais no Discord.</p>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Nome</th><th>ID</th><th>Membros</th></tr>
+                </thead>
+                <tbody id="roles-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ACTIONS -->
+        <section class="view" id="view-actions">
+          <div class="panel-grid">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Operações do bot</h3>
+              </div>
+              <p class="panel-desc">Ações de manutenção. Não reiniciam o processo — apenas confirmam ou disparam rotinas internas.</p>
+              <table class="action-table">
+                <thead>
+                  <tr><th>Ação</th><th>O que faz</th><th></th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Refresh / Wake</strong></td>
+                    <td>Confirma se o bot está responsivo (útil em sleep do Render).</td>
+                    <td><button type="button" class="btn btn-sm" data-action="wake">Executar</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Backup manual</strong></td>
+                    <td>Envia backup do banco para o canal configurado em <code>BACKUP_CHANNEL_ID</code>.</td>
+                    <td><button type="button" class="btn btn-sm" data-action="backup">Executar</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Restore de banco</h3>
+                <span class="badge danger">cuidado</span>
+              </div>
+              <p class="panel-desc">
+                Envia um arquivo <code>.db</code> para restaurar a economia local.
+                Com <strong>Turso</strong> ativo o bot pode recusar restore por arquivo — use o fluxo no Discord nesse caso.
+              </p>
+              <label class="field">
+                <span>Arquivo .db</span>
+                <input type="file" id="restore-file" accept=".db,application/octet-stream" />
+              </label>
+              <button type="button" class="btn btn-danger" id="btn-restore">Restaurar banco</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Boas práticas</h3></div>
+            <ul class="guide-list">
+              <li>Faça backup antes de qualquer restore.</li>
+              <li>Em Turso remoto, prefira o comando de restore no Discord.</li>
+              <li>Wake não altera dados — só “acorda” / confirma o serviço.</li>
+              <li>Backup manual depende de <code>BACKUP_CHANNEL_ID</code> e do cog Backup carregado.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- SYSTEMS -->
+        <section class="view" id="view-systems">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Cogs e módulos</h3>
+            </div>
+            <p class="panel-desc">Módulos carregados no processo. A economia GTA RP concentra a maior parte das features (painéis embeds nos canais dos servidores).</p>
+            <div class="table-wrap">
+              <table class="data-table" id="systems-table">
+                <thead>
+                  <tr><th>Cog</th><th>Classe</th><th>Status</th></tr>
+                </thead>
+                <tbody id="systems-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Módulos da Economy (GTA RP)</h3></div>
+            <p class="panel-desc">Áreas de jogo que o bot publica como painéis / embeds dentro dos servidores Discord.</p>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Área</th><th>Função no servidor</th><th>Tipo</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Painel do jogador</td><td>Wallet, daily, job, inventário, XP e ranks</td><td>Painel persistente</td></tr>
+                  <tr><td>Missões / Jobs</td><td>Trabalhos, contact missions, odd jobs</td><td>Interação</td></tr>
+                  <tr><td>Heists</td><td>Cayo, Casino, Doomsday, Kortz e preps</td><td>Coop / solo</td></tr>
+                  <tr><td>Cassino</td><td>Slots, roleta, lucky wheel, inside track, VIP</td><td>Jogos de azar</td></tr>
+                  <tr><td>Lojas</td><td>Ammu, lojas de itens e serviços</td><td>Comércio</td></tr>
+                  <tr><td>Arcade</td><td>Mini-atividades (go-go, wasabi, axe, qub3d…)</td><td>Entretenimento</td></tr>
+                  <tr><td>Car Meet</td><td>Encontros, export, roubo e venda de carros</td><td>Veículos</td></tr>
+                  <tr><td>Lifestyle</td><td>Mansion, Vanilla, Music Locker, beach</td><td>Social / RP</td></tr>
+                  <tr><td>Admin panels</td><td>Painéis staff (adm1–adm5) para configurar economia</td><td>Staff</td></tr>
+                  <tr><td>Eventos</td><td>Eventos de rua, drops e claims</td><td>Temporário</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TESTS -->
+        <section class="view" id="view-tests">
+          <div class="panel">
+            <div class="panel-head"><h3>Testes da API</h3></div>
+            <p class="panel-desc">Diagnósticos rápidos. Úteis para validar latência, carga da economy e storage após deploy.</p>
+            <table class="action-table">
+              <thead>
+                <tr><th>Teste</th><th>O que verifica</th><th></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>ping</strong></td>
+                  <td>Latência do gateway Discord do bot.</td>
+                  <td><button type="button" class="btn btn-sm" data-test="ping">Rodar</button></td>
+                </tr>
+                <tr>
+                  <td><strong>economy</strong></td>
+                  <td>Cog Economy carregado + contagem de users/settings.</td>
+                  <td><button type="button" class="btn btn-sm" data-test="economy">Rodar</button></td>
+                </tr>
+                <tr>
+                  <td><strong>storage</strong></td>
+                  <td>Bootstrap e acesso ao banco (SQLite/Turso).</td>
+                  <td><button type="button" class="btn btn-sm" data-test="storage">Rodar</button></td>
+                </tr>
+              </tbody>
+            </table>
+            <pre class="result-box" id="test-result">Resultados aparecem aqui…</pre>
+          </div>
+        </section>
+
+        <!-- GUIDE -->
+        <section class="view" id="view-guide">
+          <div class="panel">
+            <div class="panel-head"><h3>Como o BallyHay funciona</h3></div>
+            <p class="panel-desc">
+              Bot <strong>privado</strong> (convite manual), multi-servidor, focado apenas em economia tema GTA Roleplay.
+              Dentro de cada servidor ele publica <strong>painéis embeds</strong> com botões para jogadores e staff.
+            </p>
+            <div class="guide-grid">
+              <article class="guide-card">
+                <h4>1. Painéis no Discord</h4>
+                <p>Staff usa comandos <code>/gtarp panel</code> e <code>/gtarp adm1…adm5</code> para postar painéis permanentes nos canais. Os jogadores interagem pelos botões dos embeds.</p>
+              </article>
+              <article class="guide-card">
+                <h4>2. Economia por servidor</h4>
+                <p>Wallet, inventário, XP, ranks, daily, jobs, imposto semanal e cooldowns são isolados por guild (multi-tenant).</p>
+              </article>
+              <article class="guide-card">
+                <h4>3. Staff role</h4>
+                <p>Por servidor você define um cargo (Role ID) que pode usar comandos administrativos da economy. Configure neste painel em <em>Servidores → Gerenciar</em>.</p>
+              </article>
+              <article class="guide-card">
+                <h4>4. Backup e dados</h4>
+                <p>Backup automático/manual para canal Discord. Storage local SQLite ou remoto Turso. Restore por arquivo só quando não há Turso ativo.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Comandos e áreas (referência)</h3></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Grupo</th><th>Exemplos</th><th>Quem usa</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Painel jogador</td><td>Daily, Job, Work, Balance, Inventário</td><td>Membros</td></tr>
+                  <tr><td>Missões</td><td>Contact missions, Odd jobs, exports</td><td>Membros</td></tr>
+                  <tr><td>Heists</td><td>Cayo, Casino Heist, Doomsday, preps</td><td>Membros / coop</td></tr>
+                  <tr><td>Cassino</td><td>Slots, roleta, lucky wheel, bar VIP</td><td>Membros</td></tr>
+                  <tr><td>Lifestyle</td><td>Mansion, Vanilla Unicorn, Music Locker</td><td>Membros</td></tr>
+                  <tr><td>Car Meet</td><td>Host meet, export, theft, air freight</td><td>Membros</td></tr>
+                  <tr><td>Admin Discord</td><td>/gtarp panel, adm1–adm5, ajustes de payout</td><td>Staff / Owner</td></tr>
+                  <tr><td>Este painel web</td><td>Status, wake, backup, restore, staff role</td><td>Owner (API key)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="view" id="view-settings">
+          <div class="panel">
+            <div class="panel-head"><h3>Conexão com a API</h3></div>
+            <p class="panel-desc">Altere URL ou chave sem sair do painel. A chave nunca é enviada na URL.</p>
+            <label class="field">
+              <span>URL do bot</span>
+              <input type="url" id="settings-url" placeholder="https://ballyhay.onrender.com" />
+            </label>
+            <label class="field">
+              <span>API key (deixe em branco para manter a atual)</span>
+              <input type="password" id="settings-key" placeholder="••••••••" autocomplete="off" />
+            </label>
+            <button type="button" class="btn btn-primary" id="btn-save-settings">Salvar conexão</button>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Sobre</h3></div>
+            <ul class="kv">
+              <li><span>Produto</span><strong>BallyHay Admin Static</strong></li>
+              <li><span>Studio</span><strong>BassaniStudios</strong></li>
+              <li><span>Foco</span><strong>Economia GTA RP · multi-servidor</strong></li>
+              <li><span>UI</span><strong>Português · API em inglês</strong></li>
+              <li><span>Deploy</span><strong>GitHub Pages + bot no Render</strong></li>
+            </ul>
+          </div>
+        </section>
+      </main>
+
+      <footer class="foot">
+        BallyHay · BassaniStudios · Commands/API em inglês · UI em português
+      </footer>
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
 </body>
